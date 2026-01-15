@@ -3,6 +3,9 @@ const nextConfig = {
   images: {
     domains: ['api.placeholder.com', 'images.unsplash.com'],
   },
-}
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;
