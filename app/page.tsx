@@ -6,6 +6,7 @@ import StatusPanel from '../components/StatusPanel';
 import StatCard from '../components/StatCard';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { useAssets } from '../contexts/AssetContext';
+import { usePanelStates } from '../hooks/usePanelStates';
 
 const statsData = [
   {
@@ -36,16 +37,21 @@ const statsData = [
 
 export default function Home() {
   const { assets } = useAssets();
+  const { panelStates, toggleLeftSidebar, toggleRightPanel } = usePanelStates();
 
   return (
     <div className="h-screen bg-white">
       {/* Left Sidebar - Fixed */}
-      <div className="fixed left-0 top-0 w-64 h-full z-20">
-        <Sidebar />
-      </div>
+      <Sidebar
+        isOpen={panelStates.leftSidebarOpen}
+        onToggle={toggleLeftSidebar}
+        onClose={() => toggleLeftSidebar()}
+      />
       
-      {/* Main Content - Scrollable Only */}
-      <div className="ml-64 mr-80 h-full overflow-y-auto">
+      {/* Main Content - Dynamic Width */}
+      <div className={`h-full overflow-y-auto transition-all duration-300 ease-in-out ${
+        panelStates.leftSidebarOpen ? 'ml-64' : 'ml-0'
+      } ${panelStates.rightPanelOpen ? 'mr-80' : 'mr-0'}`}>
         <div className="p-8">
           {/* Top Badge */}
           <div className="mb-6">
@@ -190,9 +196,11 @@ export default function Home() {
       </div>
 
       {/* Right Status Panel - Fixed */}
-      <div className="fixed right-0 top-0 w-80 h-full z-20">
-        <StatusPanel />
-      </div>
+      <StatusPanel
+        isOpen={panelStates.rightPanelOpen}
+        onToggle={toggleRightPanel}
+        onClose={() => toggleRightPanel()}
+      />
     </div>
   );
 }

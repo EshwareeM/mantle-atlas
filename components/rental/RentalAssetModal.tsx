@@ -9,23 +9,16 @@ interface RentalAssetModalProps {
   asset: AssetDetails | null;
   isOpen: boolean;
   onClose: () => void;
-  onInvest?: (asset: AssetDetails) => void;
+  onInvest?: (asset: AssetDetails, amount: number) => void;
 }
 
 export default function RentalAssetModal({ 
   asset, 
   isOpen, 
-  onClose, 
+  onClose,
   onInvest 
 }: RentalAssetModalProps) {
   if (!isOpen || !asset) return null;
-
-  const handleInvest = () => {
-    if (onInvest) {
-      onInvest(asset);
-    }
-    onClose();
-  };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -54,33 +47,11 @@ export default function RentalAssetModal({
         <div className="p-6">
           <RentalAssetDetails
             asset={asset}
-            onInvest={handleInvest}
+            onInvest={onInvest}
           />
         </div>
 
-        {/* Footer Actions */}
-        <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
-          <div className="text-sm text-gray-600">
-            <p>Investment minimum: $100</p>
-            <p>Expected monthly yield: ${(asset.monthlyRent * 0.7).toLocaleString()}</p>
-          </div>
-          
-          <div className="flex space-x-4">
-            <button
-              onClick={onClose}
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleInvest}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Invest Now
-            </button>
-          </div>
-        </div>
-      </div>
+              </div>
     </div>
   );
 }

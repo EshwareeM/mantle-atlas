@@ -7,23 +7,24 @@ import { AssetDetails } from '@/types/asset';
 
 interface RentalAssetDetailsProps {
   asset: AssetDetails;
-  onInvest?: (asset: AssetDetails) => void;
   onFavorite?: (assetId: string) => void;
   isFavorited?: boolean;
+  onInvest?: (asset: AssetDetails, amount: number) => void;
 }
 
 export default function RentalAssetDetails({ 
   asset, 
-  onInvest, 
   onFavorite, 
-  isFavorited = false 
+  isFavorited = false,
+  onInvest 
 }: RentalAssetDetailsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [rating, setRating] = useState(0);
 
   const handleInvestClick = () => {
     if (onInvest) {
-      onInvest(asset);
+      // Default investment amount of $100
+      onInvest(asset, 100);
     }
   };
 
@@ -180,12 +181,7 @@ export default function RentalAssetDetails({
             onClick={handleInvestClick}
             className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
           >
-            Invest Now
-          </button>
-          <button
-            className="px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            View Details
+            Confirm & Invest
           </button>
         </div>
       </div>

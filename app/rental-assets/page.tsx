@@ -5,16 +5,25 @@ import Sidebar from '../../components/Sidebar';
 import StatusPanel from '../../components/StatusPanel';
 import RentalAssetList from '@/components/rental/RentalAssetList';
 import RentalAssetModal from '@/components/rental/RentalAssetModal';
+import InvestmentFlow from '@/components/rental/InvestmentFlow';
 import RentalStats from '@/components/rental/RentalStats';
 import { rentalAssets, getAllAssets, addNewAsset } from '../../data/rentalAssets';
 import { AssetDetails } from '@/types/asset';
 import { useRealTimeAssets } from '@/hooks/useRealTimeAssets';
+import { usePanelStates } from '@/hooks/usePanelStates';
 
 export default function RentalAssetsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAsset, setSelectedAsset] = useState<AssetDetails | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [investmentAsset, setInvestmentAsset] = useState<AssetDetails | null>(null);
+  const [investmentAmount, setInvestmentAmount] = useState(100);
+  const [isInvestmentFlowOpen, setIsInvestmentFlowOpen] = useState(false);
+  const [investedAssets, setInvestedAssets] = useState<Set<string>>(new Set());
+  
+  // Panel states
+  const { panelStates, toggleLeftSidebar, toggleRightPanel } = usePanelStates();
   
   // Use real-time assets hook
   const { assets: allAssets, refreshAssets } = useRealTimeAssets();
@@ -45,17 +54,27 @@ export default function RentalAssetsPage() {
     setIsModalOpen(true);
   };
 
-  const handleInvest = (asset: AssetDetails) => {
-    console.log('Investing in:', asset.name);
-    // Handle investment logic here
-  };
-
   const handleFavorite = (assetId: string) => {
     setFavorites(prev => 
       prev.includes(assetId) 
         ? prev.filter(id => id !== assetId)
         : [...prev, assetId]
     );
+  };
+
+  const handleInvest = (asset: AssetDetails, amount: number) => {
+    setInvestmentAsset(asset);
+    setInvestmentAmount(amount);
+    setIsInvestmentFlowOpen(true);
+    setIsModalOpen(false); // Close the asset details modal
+  };
+
+  const handleInvestmentComplete = () => {
+    if (investmentAsset) {
+      setInvestedAssets(prev => new Set(Array.from(prev).concat(investmentAsset.id)));
+    }
+    setIsInvestmentFlowOpen(false);
+    setInvestmentAsset(null);
   };
 
   const handleFilterChange = (filters: any) => {
@@ -88,12 +107,16 @@ export default function RentalAssetsPage() {
   return (
     <div className="h-screen bg-white">
       {/* Left Sidebar - Fixed */}
-      <div className="fixed left-0 top-0 w-64 h-full z-20">
-        <Sidebar />
-      </div>
+      <Sidebar
+        isOpen={panelStates.leftSidebarOpen}
+        onToggle={toggleLeftSidebar}
+        onClose={() => toggleLeftSidebar()}
+      />
       
-      {/* Main Content - Scrollable Only */}
-      <div className="ml-64 mr-80 h-full overflow-y-auto">
+      {/* Main Content - Dynamic Width */}
+      <div className={`h-full overflow-y-auto transition-all duration-300 ease-in-out ${
+        panelStates.leftSidebarOpen ? 'ml-64' : 'ml-0'
+      } ${panelStates.rightPanelOpen ? 'mr-80' : 'mr-0'}`}>
         <div className="p-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-text-primary mb-2">
@@ -116,6 +139,7 @@ export default function RentalAssetsPage() {
           <RentalAssetList
             assets={filteredAssets}
             onAssetClick={handleAssetClick}
+            investedAssets={investedAssets}
           />
 
           {/* Asset Details Modal */}
@@ -125,13 +149,23 @@ export default function RentalAssetsPage() {
             onClose={() => setIsModalOpen(false)}
             onInvest={handleInvest}
           />
+
+          {/* Investment Flow Modal */}
+          <InvestmentFlow
+            asset={investmentAsset}
+            isOpen={isInvestmentFlowOpen}
+            onClose={handleInvestmentComplete}
+            amount={investmentAmount}
+          />
         </div>
       </div>
 
       {/* Right Status Panel - Fixed */}
-      <div className="fixed right-0 top-0 w-80 h-full z-20">
-        <StatusPanel />
-      </div>
+      <StatusPanel
+        isOpen={panelStates.rightPanelOpen}
+        onToggle={toggleRightPanel}
+        onClose={() => toggleRightPanel()}
+      />
     </div>
   );
 }

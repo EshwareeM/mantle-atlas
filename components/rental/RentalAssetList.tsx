@@ -7,9 +7,10 @@ import { AssetDetails } from '@/types/asset';
 interface RentalAssetListProps {
   assets: AssetDetails[];
   onAssetClick?: (asset: AssetDetails) => void;
+  investedAssets?: Set<string>;
 }
 
-export default function RentalAssetList({ assets, onAssetClick }: RentalAssetListProps) {
+export default function RentalAssetList({ assets, onAssetClick, investedAssets = new Set() }: RentalAssetListProps) {
   const [sortBy, setSortBy] = useState('newest');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
@@ -105,6 +106,13 @@ export default function RentalAssetList({ assets, onAssetClick }: RentalAssetLis
                   Newly Deployed
                 </div>
               )}
+              
+              {/* Investment Confirmed Badge */}
+              {investedAssets.has(asset.id) && (
+                <div className="absolute top-2 left-2 bg-blue-50 text-blue-700 text-xs font-medium px-2 py-1 rounded border border-blue-200">
+                  Investment Confirmed
+                </div>
+              )}
               {/* Asset Image */}
               <div className="relative h-48 bg-gray-200">
                 <img
@@ -181,6 +189,13 @@ export default function RentalAssetList({ assets, onAssetClick }: RentalAssetLis
               {asset.isNew && (
                 <div className="absolute top-2 left-2 bg-green-50 text-green-700 text-xs font-medium px-2 py-1 rounded border border-green-200">
                   Newly Deployed
+                </div>
+              )}
+              
+              {/* Investment Confirmed Badge */}
+              {investedAssets.has(asset.id) && (
+                <div className="absolute top-2 left-2 bg-blue-50 text-blue-700 text-xs font-medium px-2 py-1 rounded border border-blue-200">
+                  Investment Confirmed
                 </div>
               )}
               <div className="flex items-center justify-between">
