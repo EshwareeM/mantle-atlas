@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { rentalAssets, getAllAssets, addNewAsset } from '../../data/rentalAssets';
 import Sidebar from '../../components/Sidebar';
+import StatusPanel from '../../components/StatusPanel';
 import StepIndicator from '../../components/builder/StepIndicator';
 import AssetIdentification from '../../components/builder/AssetIdentification';
 import YieldConfiguration from '../../components/builder/YieldConfiguration';
 import ComplianceDeployment from '../../components/builder/ComplianceDeployment';
 import DeploymentSuccess from '../../components/builder/DeploymentSuccess';
+import { usePanelStates } from '@/hooks/usePanelStates';
 
 export default function BuilderPage() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -23,6 +25,9 @@ export default function BuilderPage() {
   });
   const [isDeploying, setIsDeploying] = useState(false);
   const [deploymentComplete, setDeploymentComplete] = useState(false);
+  
+  // Panel states
+  const { panelStates, toggleLeftSidebar, toggleRightPanel } = usePanelStates();
 
   const handleNext = () => {
     if (currentStep < 3) {
@@ -85,12 +90,16 @@ export default function BuilderPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F7F8FA' }}>
       {/* Left Sidebar - Fixed */}
-      <div className="fixed left-0 top-0 w-64 h-full z-20">
-        <Sidebar />
-      </div>
+      <Sidebar
+        isOpen={panelStates.leftSidebarOpen}
+        onToggle={toggleLeftSidebar}
+        onClose={() => toggleLeftSidebar()}
+      />
       
-      {/* Main Content - Scrollable Only */}
-      <div className="ml-64 mr-80 min-h-screen">
+      {/* Main Content - Dynamic Width */}
+      <div className={`min-h-screen transition-all duration-300 ease-in-out ${
+        panelStates.leftSidebarOpen ? 'ml-64' : 'ml-0'
+      } ${panelStates.rightPanelOpen ? 'mr-80' : 'mr-0'}`}>
         <div className="max-w-4xl mx-auto px-8 py-12">
           {/* Header */}
           <div className="mb-12 text-center">
@@ -147,37 +156,11 @@ export default function BuilderPage() {
       </div>
 
       {/* Right Status Panel - Fixed */}
-      <div className="fixed right-0 top-0 w-80 h-full z-20">
-        <div className="h-full bg-white border-l border-gray-200">
-          <div className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Builder Status
-            </h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Current Step</span>
-                <span className="text-sm font-medium text-gray-900">
-                  {currentStep === 1 && 'Asset Identification'}
-                  {currentStep === 2 && 'Yield Configuration'}
-                  {currentStep === 3 && 'Compliance & Deployment'}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Progress</span>
-                <span className="text-sm font-medium text-blue-600">
-                  {Math.round((currentStep / 3) * 100)}%
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${(currentStep / 3) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <StatusPanel
+        isOpen={panelStates.rightPanelOpen}
+        onToggle={toggleRightPanel}
+        onClose={() => toggleRightPanel()}
+      />
     </div>
   );
 }

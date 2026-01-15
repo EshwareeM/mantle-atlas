@@ -2,18 +2,26 @@
 
 import { useState } from 'react';
 import Sidebar from '../../components/Sidebar';
+import StatusPanel from '../../components/StatusPanel';
 import { ShieldCheckIcon, CheckCircleIcon, ExclamationTriangleIcon, ChartBarIcon, BuildingOfficeIcon, DocumentTextIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { usePanelStates } from '@/hooks/usePanelStates';
 
 export default function YieldPassportPage() {
+  const { panelStates, toggleLeftSidebar, toggleRightPanel } = usePanelStates();
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F8FAFC' }}>
       {/* Left Sidebar - Fixed */}
-      <div className="fixed left-0 top-0 w-64 h-full z-20">
-        <Sidebar />
-      </div>
+      <Sidebar
+        isOpen={panelStates.leftSidebarOpen}
+        onToggle={toggleLeftSidebar}
+        onClose={() => toggleLeftSidebar()}
+      />
       
       {/* Main Content Area */}
-      <div className="ml-64 mr-80">
+      <div className={`transition-all duration-300 ease-in-out ${
+        panelStates.leftSidebarOpen ? 'ml-64' : 'ml-0'
+      } ${panelStates.rightPanelOpen ? 'mr-80' : 'mr-0'}`}>
         <div className="p-8">
           {/* Page Header */}
           <div className="mb-8">
@@ -222,55 +230,11 @@ export default function YieldPassportPage() {
       </div>
 
       {/* Right Status Panel */}
-      <div className="fixed right-0 top-0 w-80 h-full bg-white border-l border-gray-200 overflow-y-auto">
-        <div className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-6">System Status</h3>
-          
-          <div className="space-y-6">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Network</h4>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Mantle Network</span>
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Block Height</span>
-                  <span className="text-sm font-mono">18,457,293</span>
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Account</h4>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Status</span>
-                  <span className="text-sm text-green-600">Active</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Level</span>
-                  <span className="text-sm font-medium">Gold</span>
-                </div>
-              </div>
-            </div>
-            
-            <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Security</h4>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">2FA</span>
-                  <span className="text-sm text-green-600">Enabled</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Last Login</span>
-                  <span className="text-sm">2 hours ago</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <StatusPanel
+        isOpen={panelStates.rightPanelOpen}
+        onToggle={toggleRightPanel}
+        onClose={() => toggleRightPanel()}
+      />
     </div>
   );
 }

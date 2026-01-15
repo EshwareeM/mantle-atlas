@@ -6,17 +6,24 @@ import Sidebar from '../../components/Sidebar';
 import StatusPanel from '../../components/StatusPanel';
 import MetricCard from '../../components/yield/MetricCard';
 import DistributionHistory from '../../components/yield/DistributionHistory';
+import { usePanelStates } from '@/hooks/usePanelStates';
 
 export default function YieldFlowPage() {
+  const { panelStates, toggleLeftSidebar, toggleRightPanel } = usePanelStates();
+
   return (
     <div className="h-screen bg-white">
       {/* Left Sidebar - Fixed */}
-      <div className="fixed left-0 top-0 w-64 h-full z-20">
-        <Sidebar />
-      </div>
+      <Sidebar
+        isOpen={panelStates.leftSidebarOpen}
+        onToggle={toggleLeftSidebar}
+        onClose={() => toggleLeftSidebar()}
+      />
       
-      {/* Main Content - Scrollable Only */}
-      <div className="ml-64 mr-80 h-full overflow-y-auto">
+      {/* Main Content - Dynamic Width */}
+      <div className={`h-full overflow-y-auto transition-all duration-300 ease-in-out ${
+        panelStates.leftSidebarOpen ? 'ml-64' : 'ml-0'
+      } ${panelStates.rightPanelOpen ? 'mr-80' : 'mr-0'}`}>
         <div className="p-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-text-primary mb-2">
@@ -69,9 +76,11 @@ export default function YieldFlowPage() {
       </div>
 
       {/* Right Status Panel - Fixed */}
-      <div className="fixed right-0 top-0 w-80 h-full z-20">
-        <StatusPanel />
-      </div>
+      <StatusPanel
+        isOpen={panelStates.rightPanelOpen}
+        onToggle={toggleRightPanel}
+        onClose={() => toggleRightPanel()}
+      />
     </div>
   );
 }
